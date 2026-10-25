@@ -317,13 +317,13 @@ function collectGeoPoints(node,points){
 function stateCodeForFeature(feature){
  var props=feature.properties||{},known=[props.sigla,props.SIGLA,props.uf,props.UF,props.abbrev,props.abbreviation,props.postal,props.code];
  for(var i=0;i<known.length;i++){var raw=String(known[i]||"").toUpperCase();if(STATE_BY_UF[raw])return raw;}
- var ibge=String(props.id||props.ID||props.codigo_uf||props.codarea||"");if(STATE_IBGE_CODES[ibge])return STATE_IBGE_CODES[ibge];
  var names=[props.name,props.nome,props.NAME_1,props.name_en,props.state,props.estado,props.description,feature.name];
  for(var j=0;j<names.length;j++){
-  var norm=stateNormalize(names[j]);norm=norm.replace(/^stateof/,"").replace(/^estado/,"").replace(/^de/,"");
+  var norm=stateNormalize(names[j]).replace(/^(stateof|estadode|estadodo|estadada|estado)/,"");
   if(STATE_BY_NAME[norm])return STATE_BY_NAME[norm];
   var keys=Object.keys(STATE_BY_NAME);for(var k=0;k<keys.length;k++)if(norm.endsWith(keys[k]))return STATE_BY_NAME[keys[k]];
  }
+ var ibge=String(props.codigo_uf||props.codarea||props.CD_GEOCUF||"");if(STATE_IBGE_CODES[ibge])return STATE_IBGE_CODES[ibge];
  return null;
 }
 function geoFeaturePath(geometry,project){
@@ -343,7 +343,7 @@ function renderBrazilMap(geo){
   var uf=stateCodeForFeature(feature);if(!uf||drawn[uf])return;var st=STATE_BY_UF[uf],d=geoFeaturePath(feature.geometry,project);if(!d)return;drawn[uf]=true;
   markup.push('<path class="state-shape" data-uf="'+uf+'" d="'+d+'" tabindex="0" role="button" aria-label="'+safe(st.name)+', selecionar estado"><title>'+safe(st.name)+' ('+uf+')</title></path>');
  });
- if(Object.keys(drawn).length<25)throw new Error("Não foi possível identificar as UFs na malha geográfica.");
+ if(Object.keys(drawn).length<27)throw new Error("A malha geográfica não permitiu identificar todas as 27 UFs.");
  svg.innerHTML=markup.join("");svg.hidden=false;loading.hidden=true;stateMapFeatures=features;stateMapReady=true;
  svg.querySelectorAll(".state-shape[data-uf]").forEach(function(shape){
   shape.addEventListener("click",function(){stateToggle(shape.dataset.uf);});
