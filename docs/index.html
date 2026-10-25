@@ -319,7 +319,7 @@ function stateCodeForFeature(feature){
  for(var i=0;i<known.length;i++){var raw=String(known[i]||"").toUpperCase();if(STATE_BY_UF[raw])return raw;}
  var names=[props.name,props.nome,props.NAME_1,props.name_en,props.state,props.estado,props.description,feature.name];
  for(var j=0;j<names.length;j++){
-  var norm=stateNormalize(names[j]).replace(/^(stateof|estadode|estadodo|estadada|estado)/,"");
+  var norm=stateNormalize(names[j]).replace(/^(stateof|estadode|estadodo|estadoda|estado)/,"");
   if(STATE_BY_NAME[norm])return STATE_BY_NAME[norm];
   var keys=Object.keys(STATE_BY_NAME);for(var k=0;k<keys.length;k++)if(norm.endsWith(keys[k]))return STATE_BY_NAME[keys[k]];
  }
