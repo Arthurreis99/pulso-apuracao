@@ -68,6 +68,37 @@ main{padding:25px 0 46px}.statebar{display:flex;align-items:flex-start;justify-c
 .pulso-chat-hint{padding:0 12px 9px;color:var(--muted);font-size:10px;line-height:1.45;background:var(--panel)}.pulso-chat-hint:empty{display:none}
 @media(max-width:600px){.pulso-chat-launcher{left:auto;right:12px;bottom:calc(15px + env(safe-area-inset-bottom));width:54px;height:54px;border-radius:16px}.pulso-chat-panel{left:auto;right:12px;bottom:calc(79px + env(safe-area-inset-bottom));width:calc(100vw - 24px);height:min(500px,calc(100dvh - 110px));min-height:280px;border-radius:20px}.pulso-chat-messages{padding:11px}.pulso-chat-form{padding:9px}}
 
+/* Mapa interativo e apuração por UF */
+.state-explorer{padding:20px;overflow:visible}
+.state-explorer-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.state-explorer-intro{min-width:0}.state-explorer-intro strong{display:block;font-size:13px}.state-explorer-intro p{margin:5px 0 0;color:var(--muted);font-size:11px;line-height:1.6}
+.state-toolbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.state-national-btn{border:1px solid #347cf055;border-radius:11px;background:var(--soft);color:var(--blue);padding:10px 12px;font-size:11px;font-weight:850;cursor:pointer}
+.state-national-btn.active{border-color:#347cf0;background:linear-gradient(135deg,#347cf0,#1e56c9);color:white;box-shadow:0 6px 20px #2563eb36}
+.state-picker{position:relative}.state-picker summary{list-style:none;display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:var(--ink);padding:10px 12px;cursor:pointer;font-size:11px;font-weight:800}.state-picker summary::-webkit-details-marker{display:none}.state-picker summary:after{content:"⌄";color:var(--muted);font-size:15px}.state-picker[open] summary:after{content:"⌃"}
+.state-picker-summary-count{color:var(--blue);font-size:10px}
+.state-picker-options{position:absolute;z-index:20;top:calc(100% + 7px);left:0;width:min(370px,calc(100vw - 56px));max-height:310px;overflow:auto;padding:12px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;border:1px solid var(--line);border-radius:15px;background:var(--solid);box-shadow:0 18px 42px rgba(0,0,0,.2)}
+.state-option{display:flex;align-items:center;gap:6px;min-width:0;padding:7px 6px;border:1px solid var(--line);border-radius:9px;background:var(--panel);font-size:10px;color:var(--ink);cursor:pointer}
+.state-option input{margin:0;accent-color:#347cf0;flex:none}.state-option span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.state-clear-btn{font-size:10px}
+.state-explorer-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(235px,.8fr);gap:20px;align-items:stretch}
+.state-map-area{min-width:0;padding:13px;border:1px solid var(--line);border-radius:17px;background:color-mix(in srgb,var(--bg) 42%,transparent)}
+.state-map-caption{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:5px}.state-map-caption strong{font-size:11px}.state-map-caption span{font-size:9px;color:var(--muted);text-align:right}
+.state-map-container{position:relative;display:grid;place-items:center;min-height:280px}
+.state-map-container svg{width:100%;height:auto;max-height:490px;overflow:visible;display:block}
+.state-map-loading{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:25px;color:var(--muted);font-size:11px;line-height:1.6}
+.state-shape{fill:rgba(113,143,184,.15);stroke:var(--bg);stroke-width:1.2;stroke-linejoin:round;vector-effect:non-scaling-stroke;cursor:pointer;transition:fill .18s,filter .18s,stroke .18s;outline:none}
+.state-shape:hover,.state-shape:focus-visible{fill:#7db2ff;stroke:#d8eaff;stroke-width:1.7;filter:drop-shadow(0 0 4px rgba(69,143,255,.55))}
+.state-shape.is-active{fill:#347cf0;stroke:#d8eaff;stroke-width:1.2;filter:drop-shadow(0 0 5px rgba(52,124,240,.76))}
+.state-shape.is-active:hover{fill:#66a3ff}
+.state-map-legend{display:flex;align-items:center;justify-content:center;gap:7px;padding:3px 0 1px;color:var(--muted);font-size:9px}.state-map-legend-dot{width:9px;height:9px;border-radius:3px;background:#347cf0;box-shadow:0 0 9px rgba(52,124,240,.65)}
+.state-summary{min-width:0;display:flex;flex-direction:column;gap:12px}.state-summary-head{padding:15px;border:1px solid var(--line);border-radius:15px;background:var(--panel)}.state-summary-head span{display:block;color:var(--muted);font-size:10px;margin-bottom:5px}.state-summary-head strong{font-size:16px;line-height:1.4;overflow-wrap:anywhere}
+.state-summary-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.state-summary-stat{min-width:0;padding:12px;border:1px solid var(--line);border-radius:13px;background:var(--panel)}.state-summary-stat span{display:block;color:var(--muted);font-size:9px;line-height:1.4}.state-summary-stat strong{display:block;margin-top:7px;font-size:17px;font-weight:850;letter-spacing:-.035em;overflow-wrap:anywhere}
+.state-summary-leaders{border:1px solid var(--line);border-radius:15px;padding:13px;background:var(--panel)}.state-summary-leaders-title{display:block;margin-bottom:11px;font-size:10px;color:var(--muted);font-weight:800}.state-leader{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;margin-top:10px}.state-leader-name{min-width:0;font-size:10px;font-weight:800;overflow-wrap:anywhere}.state-leader-pct{font-size:11px;font-weight:900;color:var(--blue)}.state-leader-track{grid-column:1/-1;height:5px;border-radius:8px;background:var(--soft);overflow:hidden}.state-leader-track span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#347cf0,#61b6ff)}
+.state-data-hint{margin:13px 0 0;color:var(--muted);font-size:10px;line-height:1.65}
+@media(max-width:800px){.state-explorer-grid{grid-template-columns:minmax(0,1fr)}.state-map-container{min-height:0}.state-map-container svg{max-height:440px}.state-picker-options{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:500px){.state-explorer{padding:13px}.state-map-area{padding:9px}.state-map-container svg{max-height:365px}.state-picker-options{position:static;width:calc(100vw - 60px);max-width:none;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:7px;max-height:250px}.state-toolbar{align-items:stretch}.state-national-btn,.state-picker summary,.state-clear-btn{min-height:40px}.state-picker{flex:1}.state-picker summary{justify-content:space-between}.state-clear-btn{padding:0 10px}.state-summary-stats{gap:7px}}
+
 </style></head><body>
 <header class="topbar"><div class="wrap topin"><a class="brand" href="./"><span class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2.2-6 4.1 12 2.2-6H21" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><strong>PULSO</strong><small>APURAÇÃO ELEITORAL</small></span></a><div class="actions"><a class="btn" href="https://resultados.tse.jus.br/" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" fill="none"><path d="M14 4h6v6M20 4l-9 9M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="btnlabel">Dados oficiais</span></a><button id="themeToggle" class="btn" type="button" aria-label="Alternar tema"><svg id="themeIcon" viewBox="0 0 24 24" fill="none"><path d="M20.5 15.2A8.7 8.7 0 0 1 8.8 3.5 8.8 8.8 0 1 0 20.5 15.2Z" stroke="currentColor" stroke-width="1.8"/></svg><span class="btnlabel">Tema</span></button><button id="refreshTop" class="btn primary" type="button"><svg id="refreshTopIcon" viewBox="0 0 24 24" fill="none"><path d="M20 7v5h-5M4 17v-5h5M6 9a7 7 0 0 1 11.6-2L20 12M4 12l2.4 5A7 7 0 0 0 18 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="btnlabel">Atualizar</span></button></div></div></header>
 <section class="hero"><div class="wrap hero-in"><div class="eyebrow"><span class="dot"></span> Transparência · Dados oficiais</div><h1>O pulso da<br>apuração eleitoral.</h1><p>Acompanhe votos, percentuais e totalização em um painel independente, feito para transformar dados oficiais em informação clara.</p><div class="herofoot"><span class="pill">◷ Consulta da página a cada 30 segundos</span><span class="pill">Fonte: Tribunal Superior Eleitoral</span></div></div></section>
@@ -81,8 +112,37 @@ main{padding:25px 0 46px}.statebar{display:flex;align-items:flex-start;justify-c
 </div>
 <div id="shareHint" class="sharehint" role="status" aria-live="polite"></div>
 <div id="messageBox" class="note"></div>
+<div class="section-title state-section-title"><div><h2>Apuração por estado</h2><p>Selecione o Brasil inteiro ou combine UFs no mapa ou no filtro.</p></div><span class="subtle" id="stateScopeBadge">Brasil inteiro</span></div>
+<section id="stateExplorer" class="panel state-explorer" aria-label="Mapa interativo e filtro de estados">
+  <div class="state-explorer-top">
+    <div class="state-explorer-intro"><strong>Explore a apuração geograficamente</strong><p>Estados selecionados ficam iluminados no mapa. As estatísticas e o resultado por candidatura abaixo acompanham a seleção.</p></div>
+    <div class="state-toolbar">
+      <button id="stateNational" class="state-national-btn active" type="button" aria-pressed="true">🇧🇷 Brasil inteiro</button>
+      <details id="statePicker" class="state-picker"><summary>Filtrar estados <span id="stateSelectedCount" class="state-picker-summary-count">Todos</span></summary><div id="stateCheckboxes" class="state-picker-options" aria-label="Selecionar estados"></div></details>
+      <button id="stateClear" class="btn state-clear-btn" type="button">Limpar</button>
+    </div>
+  </div>
+  <div class="state-explorer-grid">
+    <div class="state-map-area">
+      <div class="state-map-caption"><strong>Mapa do Brasil</strong><span id="stateMapStatus">Carregando estados…</span></div>
+      <div id="stateMapContainer" class="state-map-container"><div id="stateMapLoading" class="state-map-loading">Carregando o mapa dos estados…</div><svg id="brazilStateMap" viewBox="0 0 760 680" role="img" aria-label="Mapa interativo dos estados brasileiros" hidden></svg></div>
+      <div class="state-map-legend"><span class="state-map-legend-dot"></span><span>UFs iluminadas = recorte selecionado</span></div>
+    </div>
+    <aside class="state-summary" aria-live="polite">
+      <div class="state-summary-head"><span>Recorte ativo</span><strong id="stateSummaryTitle">Brasil inteiro</strong></div>
+      <div class="state-summary-stats">
+        <div class="state-summary-stat"><span>Seções totalizadas</span><strong id="stateSections">—</strong></div>
+        <div class="state-summary-stat"><span>Totalização</span><strong id="stateProgress">—</strong></div>
+        <div class="state-summary-stat"><span>Votos válidos</span><strong id="stateValidVotes">—</strong></div>
+        <div class="state-summary-stat"><span>Brancos + nulos</span><strong id="stateBlankNull">—</strong></div>
+      </div>
+      <div id="stateLeaders" class="state-summary-leaders"><span class="state-summary-leaders-title">Resultado por candidatura</span><div class="subtle">Aguardando dados oficiais.</div></div>
+    </aside>
+  </div>
+  <p id="stateDataHint" class="state-data-hint" role="status" aria-live="polite">Os dados por UF são obtidos dos arquivos oficiais do TSE e espelhados no GitHub Pages.</p>
+</section>
 <div class="metrics"><div class="metric"><div class="metric-head">Seções totalizadas<span class="metric-icon">▤</span></div><div class="metric-value" id="sectionsValue">—</div><div class="metric-note" id="sectionsNote">de — seções previstas</div></div><div class="metric"><div class="metric-head">Votos válidos<span class="metric-icon">✓</span></div><div class="metric-value" id="validValue">—</div><div class="metric-note">Informado no arquivo do TSE</div></div><div class="metric"><div class="metric-head">Brancos + nulos<span class="metric-icon">×</span></div><div class="metric-value" id="blankNullValue">—</div><div class="metric-note">Soma de brancos e nulos</div></div><div class="metric"><div class="metric-head">Eleitorado apto<span class="metric-icon">♙</span></div><div class="metric-value" id="electorateValue">—</div><div class="metric-note">Eleitorado cadastrado para a eleição</div></div></div>
-<div class="section-title"><div><h2>Resultado por candidatura</h2><p>Votos e percentuais conforme publicados pelo TSE.</p></div><span class="subtle" id="candidateCount">Sem candidaturas</span></div><div class="candidates" id="candidateGrid"><div class="candidate empty">Aguardando a publicação dos registros oficiais de candidatura e votação.</div></div>
+<div class="section-title"><div><h2>Resultado por candidatura</h2><p id="resultsScopeDescription">Votos e percentuais conforme publicados pelo TSE.</p></div><span class="subtle" id="candidateCount">Sem candidaturas</span></div><div class="candidates" id="candidateGrid"><div class="candidate empty">Aguardando a publicação dos registros oficiais de candidatura e votação.</div></div>
 <div class="section-title"><div><h2>Visão analítica</h2><p>Explore indicadores em diferentes tipos de gráfico.</p></div></div><section class="panel"><div class="charthead"><div><h3 id="chartTitle">Votos por candidatura</h3><p id="chartDesc">Comparação do total de votos contabilizados por candidatura.</p></div><span class="subtle">Gráficos interativos</span></div><div class="modes" role="group" aria-label="Tipo de gráfico"><button class="mode active" data-mode="votes">Votos</button><button class="mode" data-mode="share">Participação</button><button class="mode" data-mode="evolution">Evolução</button><button class="mode" data-mode="ballots">Válidos × brancos × nulos</button></div><div class="canvaswrap"><canvas id="chart" aria-label="Gráfico da apuração eleitoral"></canvas></div><div class="chartnote" id="chartNote">Os gráficos serão preenchidos quando o arquivo oficial apresentar dados válidos.</div><div class="progress"><div class="progresshead"><span>Progresso da totalização</span><strong id="progressPct">—</strong></div><div class="progtrack"><div class="progfill" id="progressFill" style="width:0%"></div></div><div class="progressbottom"><span id="progressLeft">Seções totalizadas: —</span><span id="progressRight">Total previsto: —</span></div></div></section></main>
 <section class="wrap contact-cta" aria-label="Contato para criação de sites">
   <div class="contact-cta-copy">
