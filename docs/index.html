@@ -186,11 +186,186 @@ main{padding:25px 0 46px}.statebar{display:flex;align-items:flex-start;justify-c
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
 <script src="./chat-config.js"></script>
 <script>
-(function(){"use strict";var $=function(id){return document.getElementById(id)},REFRESH_MS=30000,payloadNow=null,mode="votes",fetching=false,sourceLabel="espelho do GitHub Pages",shareBlob=null,shareFile=null,intFmt=new Intl.NumberFormat("pt-BR",{maximumFractionDigits:0}),pctFmt=new Intl.NumberFormat("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}),colors=["#347cf0","#13a981","#edaa35","#9a76ef","#e66f80","#20b7c9","#e57b35","#7190ac"],history=[];
+(function(){"use strict";var $=function(id){return document.getElementById(id)},REFRESH_MS=30000,payloadNow=null,displayPayload=null,mode="votes",fetching=false,sourceLabel="espelho do GitHub Pages",nationalSourceLabel="espelho do GitHub Pages",selectedUfs=[],statePayloads=Object.create(null),stateFetches=Object.create(null),stateMapFeatures=[],stateMapReady=false,stateRequestId=0,shareBlob=null,shareFile=null,intFmt=new Intl.NumberFormat("pt-BR",{maximumFractionDigits:0}),pctFmt=new Intl.NumberFormat("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}),colors=["#347cf0","#13a981","#edaa35","#9a76ef","#e66f80","#20b7c9","#e57b35","#7190ac"],history=[];
 try{var saved=JSON.parse(localStorage.getItem("pulso-history")||"[]");if(Array.isArray(saved))history=saved.slice(-120)}catch(e){}
 function n(v){if(typeof v==="number")return Number.isFinite(v)?v:0;if(v==null||v==="")return 0;var s=String(v).trim().replace(/\s/g,""),c=s.lastIndexOf(","),d=s.lastIndexOf(".");if(c>=0&&d>=0)s=c>d?s.replace(/\./g,"").replace(",","."):s.replace(/,/g,"");else if(c>=0)s=s.replace(/\./g,"").replace(",",".");else if((s.match(/\./g)||[]).length>1)s=s.replace(/\./g,"");var q=Number(s);return Number.isFinite(q)?q:0}
 function safe(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function getCandidates(p){var cargo=Array.isArray(p.carg)?p.carg:[],office=cargo.find(function(x){return String(x.cd)==="1"})||cargo[0],out=[];(office&&office.agr||[]).forEach(function(g){(g.par||[]).forEach(function(party){(party.cand||[]).forEach(function(c){out.push({name:c.nmu||c.nm||"Candidato sem nome informado",full:c.nm||c.nmu||"",votes:n(c.vap),pct:n(c.pvap),party:party.sg||party.nm||g.nm||"Candidatura",number:c.n||"",sqcand:c.sqcand?String(c.sqcand):""})})})});return out.sort(function(a,b){return b.votes-a.votes})}
+function stateNormalize(v){return String(v||"").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"")}
+var STATE_LIST=[
+ {uf:"AC",name:"Acre"},{uf:"AL",name:"Alagoas"},{uf:"AP",name:"Amapá"},{uf:"AM",name:"Amazonas"},{uf:"BA",name:"Bahia"},{uf:"CE",name:"Ceará"},{uf:"DF",name:"Distrito Federal"},{uf:"ES",name:"Espírito Santo"},{uf:"GO",name:"Goiás"},{uf:"MA",name:"Maranhão"},{uf:"MT",name:"Mato Grosso"},{uf:"MS",name:"Mato Grosso do Sul"},{uf:"MG",name:"Minas Gerais"},{uf:"PA",name:"Pará"},{uf:"PB",name:"Paraíba"},{uf:"PR",name:"Paraná"},{uf:"PE",name:"Pernambuco"},{uf:"PI",name:"Piauí"},{uf:"RJ",name:"Rio de Janeiro"},{uf:"RN",name:"Rio Grande do Norte"},{uf:"RS",name:"Rio Grande do Sul"},{uf:"RO",name:"Rondônia"},{uf:"RR",name:"Roraima"},{uf:"SC",name:"Santa Catarina"},{uf:"SP",name:"São Paulo"},{uf:"SE",name:"Sergipe"},{uf:"TO",name:"Tocantins"}
+];
+var STATE_BY_UF=Object.create(null),STATE_BY_NAME=Object.create(null);
+STATE_LIST.forEach(function(st){STATE_BY_UF[st.uf]=st;STATE_BY_NAME[stateNormalize(st.name)]=st.uf;});
+var STATE_IBGE_CODES={"11":"RO","12":"AC","13":"AM","14":"RR","15":"PA","16":"AP","17":"TO","21":"MA","22":"PI","23":"CE","24":"RN","25":"PB","26":"PE","27":"AL","28":"SE","29":"BA","31":"MG","32":"ES","33":"RJ","35":"SP","41":"PR","42":"SC","43":"RS","50":"MS","51":"MT","52":"GO","53":"DF"};
+function stateLabel(uf){return STATE_BY_UF[uf]?STATE_BY_UF[uf].name:uf}
+function stateSelectionLabel(){if(!selectedUfs.length)return"Brasil inteiro";var names=selectedUfs.map(stateLabel);return names.length<=3?names.join(", "):names.slice(0,2).join(", ")+" + "+(names.length-2)+" estado(s)"}
+function updateStateControls(){
+ var national=$("stateNational"),count=$("stateSelectedCount"),badge=$("stateScopeBadge"),heading=$("stateSummaryTitle"),status=$("stateMapStatus");
+ if(national){national.classList.toggle("active",selectedUfs.length===0);national.setAttribute("aria-pressed",selectedUfs.length===0?"true":"false");}
+ if(count)count.textContent=selectedUfs.length?selectedUfs.length+" selecionado(s)":"Todos";
+ if(badge)badge.textContent=selectedUfs.length?selectedUfs.length+" UF(s)":"Brasil inteiro";
+ if(heading)heading.textContent=stateSelectionLabel();
+ if(status)status.textContent=stateMapReady?(selectedUfs.length?selectedUfs.length+" UF(s) selecionada(s)":"Brasil inteiro em destaque"):"Carregando estados…";
+ var box=$("stateCheckboxes");
+ if(box)box.querySelectorAll("input[data-uf]").forEach(function(input){input.checked=selectedUfs.indexOf(input.dataset.uf)>=0;});
+ updateStateMapSelection();
+}
+function updateStateMapSelection(){
+ var svg=$("brazilStateMap");if(!svg)return;
+ svg.querySelectorAll(".state-shape[data-uf]").forEach(function(shape){
+  var active=!selectedUfs.length||selectedUfs.indexOf(shape.dataset.uf)>=0;
+  shape.classList.toggle("is-active",active);
+  shape.setAttribute("aria-pressed",active?"true":"false");
+ });
+}
+function stateToggle(uf){
+ var next=selectedUfs.slice(),index=next.indexOf(uf);
+ if(index>=0)next.splice(index,1);else next.push(uf);
+ setStateSelection(next);
+}
+function setStateSelection(next){
+ selectedUfs=Array.from(new Set((next||[]).filter(function(uf){return !!STATE_BY_UF[uf]}))).sort();
+ var token=++stateRequestId;
+ updateStateControls();
+ var picker=$("statePicker");if(picker&&picker.open)picker.open=false;
+ if(!selectedUfs.length){displayPayload=payloadNow;sourceLabel=nationalSourceLabel;renderActivePayload();return;}
+ var names=selectedUfs.map(stateLabel).join(", ");
+ $("stateDataHint").textContent="Carregando dados oficiais para "+names+"…";
+ fetchStatePayloads(selectedUfs,false).then(function(){
+  if(token!==stateRequestId)return;
+  renderActivePayload();
+ }).catch(function(error){
+  if(token!==stateRequestId)return;
+  displayPayload=null;sourceLabel="espelho estadual do GitHub Pages";
+  renderUnavailableStatePayload(error);
+ });
+}
+function fetchStatePayload(uf,force){
+ if(!force&&statePayloads[uf])return Promise.resolve(statePayloads[uf]);
+ if(!force&&stateFetches[uf])return stateFetches[uf];
+ var url="./data/ufs/"+uf.toLowerCase()+".json?pulso="+Date.now();
+ var promise=getJson(url).then(function(payload){statePayloads[uf]=payload;delete stateFetches[uf];return payload;}).catch(function(error){delete stateFetches[uf];throw new Error(uf+": "+error.message);});
+ stateFetches[uf]=promise;return promise;
+}
+function fetchStatePayloads(ufs,force){return Promise.all(ufs.map(function(uf){return fetchStatePayload(uf,force)}));}
+function aggregateStatePayloads(payloads){
+ if(!payloads||!payloads.length)return null;
+ var out=JSON.parse(JSON.stringify(payloads[0])),candidateSums=Object.create(null),validVotes=0,blankVotes=0,nullVotes=0,totalSections=0,sectionsDone=0,electorate=0,newest=null;
+ payloads.forEach(function(p){
+  getCandidates(p).forEach(function(c){var key=String(c.sqcand||c.number||stateNormalize(c.name));if(!candidateSums[key])candidateSums[key]={votes:0};candidateSums[key].votes+=c.votes;});
+  validVotes+=n((p.v||{}).vvc);blankVotes+=n((p.v||{}).vb);nullVotes+=n((p.v||{}).vn!==undefined&&(p.v||{}).vn!==null?p.v.vn:(p.v||{}).tvn);
+  sectionsDone+=n((p.s||{}).st);totalSections+=n((p.s||{}).ts);electorate+=n((p.e||{}).te);
+  var stamp=officialStamp(p);if(stamp&&(!newest||stamp>newest.stamp))newest={stamp:stamp,dg:p.dg,hg:p.hg};
+ });
+ var candidateTotal=Object.keys(candidateSums).reduce(function(sum,key){return sum+candidateSums[key].votes;},0);
+ if(!validVotes)validVotes=candidateTotal;
+ var denominator=validVotes||candidateTotal;
+ (out.carg||[]).forEach(function(cargo){(cargo.agr||[]).forEach(function(group){(group.par||[]).forEach(function(party){(party.cand||[]).forEach(function(candidate){
+  var key=String(candidate.sqcand||candidate.n||stateNormalize(candidate.nmu||candidate.nm));
+  var record=candidateSums[key]||{votes:0},pct=denominator?record.votes/denominator*100:0;
+  candidate.vap=String(record.votes);candidate.pvap=pct.toFixed(2).replace(".",",");candidate.pvapn=String(pct);
+ });});});});
+ out.s=out.s||{};out.s.st=String(sectionsDone);out.s.ts=String(totalSections);var progress=totalSections?sectionsDone/totalSections*100:0;out.s.pst=progress.toFixed(2).replace(".",",");out.s.pstn=String(progress);
+ out.e=out.e||{};out.e.te=String(electorate);
+ out.v=out.v||{};out.v.vvc=String(validVotes);out.v.vv=String(validVotes);out.v.vnom=String(validVotes);out.v.vb=String(blankVotes);out.v.vn=String(nullVotes);out.v.tvn=String(nullVotes);
+ if(newest){out.dg=newest.dg;out.hg=newest.hg;}
+ return out;
+}
+function renderStateOverview(p){
+ $("stateSummaryTitle").textContent=stateSelectionLabel();
+ if(!p){$("stateSections").textContent="—";$("stateProgress").textContent="—";$("stateValidVotes").textContent="—";$("stateBlankNull").textContent="—";$("stateLeaders").innerHTML='<span class="state-summary-leaders-title">Resultado por candidatura</span><div class="subtle">Dados estaduais indisponíveis para este recorte.</div>';return;}
+ var s=p.s||{},v=p.v||{},cs=getCandidates(p);
+ $("stateSections").textContent=intFmt.format(n(s.st))+" / "+intFmt.format(n(s.ts));
+ $("stateProgress").textContent=pctFmt.format(n(s.pst))+"%";
+ $("stateValidVotes").textContent=intFmt.format(n(v.vvc));
+ $("stateBlankNull").textContent=intFmt.format(n(v.vb)+n(v.vn!==undefined&&v.vn!==null?v.vn:v.tvn));
+ var title='<span class="state-summary-leaders-title">Resultado por candidatura</span>';
+ if(!cs.length){$("stateLeaders").innerHTML=title+'<div class="subtle">O TSE ainda não publicou votos nesse recorte.</div>';return;}
+ $("stateLeaders").innerHTML=title+cs.slice(0,4).map(function(c,i){var color=colors[i%colors.length];return '<div class="state-leader"><span class="state-leader-name">'+safe(c.name)+'</span><strong class="state-leader-pct">'+pctFmt.format(c.pct)+'%</strong><div class="state-leader-track"><span style="width:'+Math.max(0,Math.min(100,c.pct))+'%;background:'+color+'"></span></div></div>';}).join("");
+}
+function renderUnavailableStatePayload(error){
+ renderStateOverview(null);
+ $("stateDataHint").textContent="Ainda não foi possível carregar os espelhos oficiais para todas as UFs selecionadas. O mapa mantém sua seleção, mas os números não serão apresentados como se fossem nacionais. Tente atualizar novamente em instantes.";
+ $("sectionsValue").textContent="—";$("sectionsNote").textContent="Dados estaduais indisponíveis";$("validValue").textContent="—";$("blankNullValue").textContent="—";$("electorateValue").textContent="—";$("progressPct").textContent="—";$("progressFill").style.width="0%";$("progressLeft").textContent="Seções totalizadas: —";$("progressRight").textContent="Total previsto: —";
+ $("candidateCount").textContent="Dados estaduais indisponíveis";$("candidateGrid").innerHTML='<div class="candidate empty">Os dados oficiais das UFs selecionadas ainda não estão disponíveis no espelho. Tente novamente em instantes.</div>';
+ $("statusPill").className="status wait";$("statusPill").textContent="Aguardando dados estaduais";$("statusText").textContent="Não foi possível carregar o recorte selecionado";$("updateDetail").textContent="Nenhum número estadual será estimado ou substituído por dados nacionais."; $("updateTime").textContent="Dados estaduais indisponíveis";$("resultsScopeDescription").textContent="Filtro: "+stateSelectionLabel()+". Os dados estaduais estão indisponíveis.";displayPayload=null;draw();
+}
+function renderActivePayload(){
+ if(!selectedUfs.length){
+  displayPayload=payloadNow;sourceLabel=nationalSourceLabel;
+  if(!displayPayload){renderStateOverview(null);return;}
+  renderStateOverview(displayPayload);
+  $("stateDataHint").textContent="Brasil inteiro selecionado. Os resultados vêm do arquivo nacional do TSE; selecione uma ou mais UFs para filtrar os números.";
+  $("resultsScopeDescription").textContent="Votos e percentuais conforme publicados pelo TSE.";
+  renderCandidates(displayPayload);update(displayPayload);draw();return;
+ }
+ var missing=selectedUfs.filter(function(uf){return !statePayloads[uf];});
+ if(missing.length){renderUnavailableStatePayload(new Error("Dados ausentes para "+missing.join(", ")));return;}
+ displayPayload=aggregateStatePayloads(selectedUfs.map(function(uf){return statePayloads[uf]}));sourceLabel="espelho estadual do GitHub Pages";
+ renderStateOverview(displayPayload);
+ $("stateDataHint").textContent="Dados oficiais por UF espelhados do TSE. O percentual das candidaturas é recalculado sobre os votos válidos somados das UFs selecionadas.";
+ $("resultsScopeDescription").textContent="Filtro: "+stateSelectionLabel()+". Os votos são somados entre as UFs; percentuais recalculados sobre os votos válidos do recorte.";
+ renderCandidates(displayPayload);update(displayPayload);draw();
+}
+function collectGeoPoints(node,points){
+ if(!Array.isArray(node))return;
+ if(typeof node[0]==="number"&&typeof node[1]==="number"){points.push(node);return;}
+ node.forEach(function(child){collectGeoPoints(child,points);});
+}
+function stateCodeForFeature(feature){
+ var props=feature.properties||{},known=[props.sigla,props.SIGLA,props.uf,props.UF,props.abbrev,props.abbreviation,props.postal,props.code];
+ for(var i=0;i<known.length;i++){var raw=String(known[i]||"").toUpperCase();if(STATE_BY_UF[raw])return raw;}
+ var ibge=String(props.id||props.ID||props.codigo_uf||props.codarea||"");if(STATE_IBGE_CODES[ibge])return STATE_IBGE_CODES[ibge];
+ var names=[props.name,props.nome,props.NAME_1,props.name_en,props.state,props.estado,props.description,feature.name];
+ for(var j=0;j<names.length;j++){
+  var norm=stateNormalize(names[j]);norm=norm.replace(/^stateof/,"").replace(/^estado/,"").replace(/^de/,"");
+  if(STATE_BY_NAME[norm])return STATE_BY_NAME[norm];
+  var keys=Object.keys(STATE_BY_NAME);for(var k=0;k<keys.length;k++)if(norm.endsWith(keys[k]))return STATE_BY_NAME[keys[k]];
+ }
+ return null;
+}
+function geoFeaturePath(geometry,project){
+ var polys=geometry&&geometry.type==="Polygon"?[geometry.coordinates]:geometry&&geometry.type==="MultiPolygon"?geometry.coordinates:[];
+ var d="";
+ polys.forEach(function(poly){poly.forEach(function(ring){if(!ring.length)return;ring.forEach(function(pt,i){var p=project(pt[0],pt[1]);d+=(i?"L":"M")+p.x.toFixed(2)+","+p.y.toFixed(2);});d+="Z";});});
+ return d;
+}
+function renderBrazilMap(geo){
+ var svg=$("brazilStateMap"),loading=$("stateMapLoading"),features=(geo&&geo.features)||[],points=[];
+ features.forEach(function(feature){if(feature.geometry)collectGeoPoints(feature.geometry.coordinates,points);});
+ if(!points.length||features.length<20)throw new Error("A malha geográfica não contém os estados esperados.");
+ var xs=points.map(function(p){return p[0]}),ys=points.map(function(p){return p[1]}),minX=Math.min.apply(null,xs),maxX=Math.max.apply(null,xs),minY=Math.min.apply(null,ys),maxY=Math.max.apply(null,ys),W=760,H=680,pad=16,scale=Math.min((W-pad*2)/(maxX-minX),(H-pad*2)/(maxY-minY)),offsetX=(W-(maxX-minX)*scale)/2,offsetY=(H-(maxY-minY)*scale)/2;
+ function project(lon,lat){return{x:offsetX+pad+(lon-minX)*scale,y:offsetY+pad+(maxY-lat)*scale};}
+ var drawn=Object.create(null),markup=[];
+ features.forEach(function(feature){
+  var uf=stateCodeForFeature(feature);if(!uf||drawn[uf])return;var st=STATE_BY_UF[uf],d=geoFeaturePath(feature.geometry,project);if(!d)return;drawn[uf]=true;
+  markup.push('<path class="state-shape" data-uf="'+uf+'" d="'+d+'" tabindex="0" role="button" aria-label="'+safe(st.name)+', selecionar estado"><title>'+safe(st.name)+' ('+uf+')</title></path>');
+ });
+ if(Object.keys(drawn).length<25)throw new Error("Não foi possível identificar as UFs na malha geográfica.");
+ svg.innerHTML=markup.join("");svg.hidden=false;loading.hidden=true;stateMapFeatures=features;stateMapReady=true;
+ svg.querySelectorAll(".state-shape[data-uf]").forEach(function(shape){
+  shape.addEventListener("click",function(){stateToggle(shape.dataset.uf);});
+  shape.addEventListener("keydown",function(event){if(event.key==="Enter"||event.key===" "){event.preventDefault();stateToggle(shape.dataset.uf);}});
+ });
+ updateStateControls();
+}
+function initStateExplorer(){
+ var box=$("stateCheckboxes");
+ box.innerHTML=STATE_LIST.map(function(st){return '<label class="state-option"><input type="checkbox" data-uf="'+st.uf+'"><span>'+st.uf+' · '+st.name+'</span></label>';}).join("");
+ box.querySelectorAll("input[data-uf]").forEach(function(input){input.addEventListener("change",function(){var next=selectedUfs.slice();if(input.checked){if(next.indexOf(input.dataset.uf)<0)next.push(input.dataset.uf);}else next=next.filter(function(uf){return uf!==input.dataset.uf;});setStateSelection(next);});});
+ $("stateNational").addEventListener("click",function(){setStateSelection([]);});
+ $("stateClear").addEventListener("click",function(){setStateSelection([]);});
+ var localUrl="./data/brazil-states.geojson?pulso="+Date.now();
+ fetch(localUrl,{cache:"no-store"}).then(function(response){if(!response.ok)throw new Error("malha local ainda não publicada");return response.json();}).catch(function(){return fetch("https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/brazil-states.geojson?pulso="+Date.now(),{cache:"no-store"}).then(function(response){if(!response.ok)throw new Error("fonte de malha indisponível");return response.json();});}).then(renderBrazilMap).catch(function(error){$("stateMapLoading").textContent="O mapa geográfico ainda está sendo preparado. O filtro por lista pode ser usado assim que a malha for publicada."; $("stateMapStatus").textContent="Mapa indisponível";$("stateDataHint").textContent="A malha dos estados não foi carregada. Atualize a página após a publicação dos arquivos pelo GitHub Actions.";});
+}
+function refreshSelectedStateData(){
+ if(!selectedUfs.length)return;
+ var token=++stateRequestId,requested=selectedUfs.slice();
+ requested.forEach(function(uf){delete statePayloads[uf];delete stateFetches[uf];});
+ fetchStatePayloads(requested,true).then(function(){if(token===stateRequestId)renderActivePayload();}).catch(function(error){if(token===stateRequestId)renderUnavailableStatePayload(error);});
+}
+
 function theme(){return document.documentElement.dataset.theme==="dark"?"dark":"light"}
 function setTheme(t){document.documentElement.dataset.theme=t;try{localStorage.setItem("pulso-theme",t)}catch(e){}$("themeIcon").innerHTML=t==="dark"?'<circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>':'<path d="M20.5 15.2A8.7 8.7 0 0 1 8.8 3.5 8.8 8.8 0 1 0 20.5 15.2Z" stroke="currentColor" stroke-width="1.8"/>'}
 function officialStamp(p){var d=p.dg,h=p.hg;if(d&&typeof d==="object"){h=d.hg||h;d=d.dg||d.dt||d.data}var a=String(d||"").match(/^(\d{2})\/(\d{2})\/(\d{4})$/),b=String(h||"").match(/^(\d{2}):(\d{2})(?::(\d{2}))?$/);return a&&b?new Date(+a[3],+a[2]-1,+a[1],+b[1],+b[2],+(b[3]||0)):null}
