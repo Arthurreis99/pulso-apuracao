@@ -1,6 +1,18 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
+  <script>
+    // No GitHub Pages, abra a versão estática preparada para hospedagem.
+    // A versão principal continua disponível em localhost para o servidor Python.
+    (function () {
+      var host = window.location.hostname;
+      var path = window.location.pathname;
+      if (host === "arthurreis99.github.io" && !path.replace(/\\/+$/, "").endsWith("/docs")) {
+        var base = path.replace(/\\index\\.html?$/i, "/").replace(/\\/?$/, "/");
+        window.location.replace(window.location.origin + base + "docs/");
+      }
+    })();
+  </script>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="theme-color" content="#0c2c69" />
