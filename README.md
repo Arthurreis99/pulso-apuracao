@@ -7,6 +7,10 @@ Painel eleitoral responsivo de autoria de **Arthur Medeiros**. Inclui temas clar
 - Endpoint configurado: `https://resultados.tse.jus.br/oficial/ele2026/6258/dados/br/br-c0001-e006258-u.json`
 - Portal técnico do TSE: https://www.tse.jus.br/eleicoes/informacoes-tecnicas-sobre-a-divulgacao-de-resultados
 
+## Executar online
+
+Execute a versão online no seu navegador pelo site oficial: https://arthurreis99.github.io/pulso-apuracao
+
 ## Executar localmente
 
 A versão local usa `server.py` como uma ponte para consultar o TSE com maior frequência e evita depender de CORS do navegador.
