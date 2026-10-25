@@ -1,0 +1,67 @@
+name: Sincronizar TSE e publicar Pulso
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # O agendamento é periódico; o GitHub pode executar com atraso.
+    - cron: "3-59/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  publicar:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Baixar o repositório
+        uses: actions/checkout@v4
+
+      - name: Consultar e validar dados oficiais do TSE
+        shell: bash
+        run: |
+          set -u
+          url="https://resultados.tse.jus.br/oficial/ele2026/6258/dados/br/br-c0001-e006258-u.json"
+          ok="false"
+          for attempt in 1 2 3; do
+            if curl --fail --location --silent --show-error --max-time 30 \
+              -H "Cache-Control: no-cache" "$url" -o /tmp/apuracao.json; then
+              if jq -e 'type == "object" and (.carg | type == "array")' /tmp/apuracao.json >/dev/null; then
+                install -D -m 0644 /tmp/apuracao.json docs/data/apuracao.json
+                echo "Dados oficiais recebidos e validados."
+                ok="true"
+                break
+              else
+                echo "::warning::O JSON do TSE não tem a estrutura esperada."
+              fi
+            else
+              echo "::warning::Falha na tentativa $attempt de consultar o TSE."
+            fi
+            sleep 4
+          done
+          if [ "$ok" != "true" ]; then
+            echo "::warning::O TSE não respondeu com dados válidos; será mantido o último arquivo do repositório."
+            jq -e 'type == "object" and (.carg | type == "array")' docs/data/apuracao.json >/dev/null
+          fi
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Empacotar o site estático
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs
+
+      - name: Publicar o site
+        id: deployment
+        uses: actions/deploy-pages@v4
