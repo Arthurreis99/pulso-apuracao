@@ -1,2 +1,2 @@
-# eleicao2026
-Eleições ao vivo
+# Pulso - Eleição
+Eleições ao vivo 2026
