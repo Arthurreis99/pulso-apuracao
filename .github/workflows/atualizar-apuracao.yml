@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths-ignore:
       - "docs/data/apuracao.json"
+      - "docs/data/ufs/**"
+      - "docs/data/brazil-states.geojson"
+      - "docs/photos/**"
   schedule:
     # O TSE publica atualizações durante a apuração; execuções agendadas podem atrasar.
     - cron: "3-59/5 * * * *"
@@ -76,6 +79,74 @@ jobs:
           echo "::warning::Não foi possível obter um arquivo atual. Mantendo o último espelho sem sobrescrever dados com conteúdo antigo."
           exit 0
 
+      - name: Consultar apuração oficial por estado
+        shell: bash
+        run: |
+          set +e
+          mkdir -p docs/data/ufs
+          agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+          for uf in ac al am ap ba ce df es go ma mg ms mt pa pb pe pi pr rj rn ro rr rs sc se sp to; do
+            destination="docs/data/ufs/$uf.json"
+            base_url="https://resultados.tse.jus.br/oficial/ele2026/6258/dados/$uf/${uf}-c0001-e006258-u.json"
+            tmp="$(mktemp)"
+            url="${base_url}?pulso_cache=$(date +%s%N)"
+            if curl --fail --location --silent --show-error --max-time 18 \
+              --user-agent "$agent" \
+              -H "Accept: application/json,text/plain,*/*" \
+              -H "Cache-Control: no-cache, no-store, max-age=0" \
+              -H "Pragma: no-cache" "$url" -o "$tmp" &&
+              jq -e 'type == "object" and (.carg | type == "array") and (.s | type == "object") and (.v | type == "object")' "$tmp" >/dev/null; then
+              if python3 - "$tmp" <<'PY'
+          import json, sys
+          from datetime import datetime
+          from zoneinfo import ZoneInfo
+          try:
+              with open(sys.argv[1], encoding="utf-8") as f:
+                  data = json.load(f)
+              published = datetime.strptime(
+                  str(data["dg"]) + " " + str(data["hg"]), "%d/%m/%Y %H:%M:%S"
+              ).replace(tzinfo=ZoneInfo("America/Sao_Paulo"))
+              age = (datetime.now(ZoneInfo("America/Sao_Paulo")) - published).total_seconds()
+              if age < -120 or age > 720:
+                  print(f"Arquivo estadual antigo/futuro ({age/60:.1f} min); mantendo espelho anterior.")
+                  raise SystemExit(1)
+          except Exception as exc:
+              print(f"Timestamp estadual inválido: {exc}")
+              raise SystemExit(1)
+          PY
+              then
+                install -m 0644 "$tmp" "$destination"
+                echo "Resultado estadual atualizado: $uf"
+              else
+                echo "::warning::Resultado estadual $uf desatualizado/inválido; mantendo espelho anterior."
+              fi
+            else
+              echo "::warning::Não foi possível receber resultado TSE da UF $uf; mantendo espelho anterior, se existir."
+            fi
+            rm -f "$tmp"
+          done
+
+      - name: Baixar malha geográfica dos estados
+        shell: bash
+        run: |
+          set +e
+          mkdir -p docs/data
+          if [ -s docs/data/brazil-states.geojson ] && jq -e '.type == "FeatureCollection" and (.features | length >= 27)' docs/data/brazil-states.geojson >/dev/null 2>&1; then
+            echo "Malha dos estados já está disponível."
+            exit 0
+          fi
+          tmp="$(mktemp)"
+          if curl --fail --location --silent --show-error --max-time 30 \
+            --user-agent "Mozilla/5.0" \
+            "https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/brazil-states.geojson" -o "$tmp" &&
+            jq -e '.type == "FeatureCollection" and (.features | length >= 27)' "$tmp" >/dev/null; then
+            install -m 0644 "$tmp" docs/data/brazil-states.geojson
+            echo "Malha geográfica dos estados instalada."
+          else
+            echo "::warning::Não foi possível obter a malha geográfica para o mapa."
+          fi
+          rm -f "$tmp"
+
       - name: Baixar fotos oficiais dos candidatos
         shell: bash
         run: |
@@ -113,7 +184,7 @@ jobs:
       - name: Publicar os arquivos atualizados no repositório
         shell: bash
         run: |
-          git add docs/data/apuracao.json docs/photos/
+          git add docs/data/apuracao.json docs/data/ufs/ docs/data/brazil-states.geojson docs/photos/
           if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
