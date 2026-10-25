@@ -45,6 +45,29 @@ main{padding:25px 0 46px}.statebar{display:flex;align-items:flex-start;justify-c
 .contact-email{display:block;margin:0 0 17px;overflow-wrap:anywhere;font-size:12px;font-weight:750;color:var(--blue);text-decoration:none}.contact-email:hover{text-decoration:underline}
 .contact-dialog .btn{width:100%;min-height:44px;font-size:12px}
 @media(max-width:600px){.contact-cta{align-items:stretch;flex-direction:column;gap:12px;padding:16px}.contact-cta .btn{width:100%}.contact-dialog-inner{padding:23px}}
+
+/* Chat público da comunidade */
+.pulso-chat-launcher{position:fixed;left:16px;bottom:calc(17px + env(safe-area-inset-bottom));z-index:30;width:58px;height:58px;padding:0;display:grid;place-items:center;border:1px solid rgba(255,255,255,.19);border-radius:17px;background:linear-gradient(145deg,#347cf0,#174fc7);color:#fff;box-shadow:0 9px 28px rgba(18,78,190,.4);cursor:pointer;transition:transform .18s,box-shadow .18s}
+.pulso-chat-launcher:hover{transform:translateY(-2px);box-shadow:0 13px 34px rgba(18,78,190,.5)}.pulso-chat-launcher svg{width:27px;height:27px}
+.pulso-chat-badge{position:absolute;right:-5px;top:-6px;min-width:22px;height:22px;padding:0 6px;display:grid;place-items:center;border:2px solid var(--bg);border-radius:999px;background:#19b978;color:#fff;font-size:10px;font-weight:900;line-height:1}
+.pulso-chat-badge[hidden],.pulso-chat-panel[hidden],.pulso-chat-note[hidden],.pulso-chat-form[hidden],.pulso-chat-messages[hidden]{display:none!important}
+.pulso-chat-panel{position:fixed;z-index:29;left:16px;bottom:calc(88px + env(safe-area-inset-bottom));width:min(370px,calc(100vw - 32px));height:min(510px,calc(100vh - 120px));min-height:300px;display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line);border-radius:22px;background:var(--solid);color:var(--ink);box-shadow:0 22px 75px rgba(0,0,0,.38);backdrop-filter:blur(22px)}
+.pulso-chat-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 15px 13px;border-bottom:1px solid var(--line);background:var(--panel)}
+.pulso-chat-headcopy{min-width:0}.pulso-chat-headcopy strong{display:block;font-size:13px}.pulso-chat-online{display:flex;align-items:center;gap:6px;margin-top:5px;font-size:10px;color:var(--muted)}.pulso-chat-online:before{content:"";width:7px;height:7px;flex:none;border-radius:50%;background:#19b978;box-shadow:0 0 0 4px rgba(25,185,120,.13)}
+.pulso-chat-close{width:34px;height:34px;flex:none;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:var(--ink);font-size:20px;cursor:pointer}
+.pulso-chat-note{margin:12px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:11px;line-height:1.55}
+.pulso-chat-messages{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:10px;padding:13px;background:color-mix(in srgb,var(--bg) 45%,transparent)}
+.pulso-chat-empty{margin:auto;padding:18px;text-align:center;color:var(--muted);font-size:11px;line-height:1.6}
+.pulso-chat-message{align-self:flex-start;max-width:88%;padding:9px 11px;border:1px solid var(--line);border-radius:13px 13px 13px 4px;background:var(--panel);overflow-wrap:anywhere}
+.pulso-chat-message.mine{align-self:flex-end;border-color:rgba(52,124,240,.3);border-radius:13px 13px 4px 13px;background:var(--soft)}
+.pulso-chat-message strong{display:block;margin-bottom:4px;font-size:10px;color:var(--blue)}.pulso-chat-message p{margin:0;font-size:12px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}.pulso-chat-message time{display:block;margin-top:5px;text-align:right;font-size:9px;color:var(--muted)}
+.pulso-chat-form{display:grid;gap:8px;padding:11px;border-top:1px solid var(--line);background:var(--panel)}
+.pulso-chat-form input,.pulso-chat-form textarea{display:block;width:100%;min-width:0;padding:10px 11px;border:1px solid var(--line);border-radius:11px;background:var(--solid);color:var(--ink);font:inherit;font-size:12px;outline:none}
+.pulso-chat-form input:focus,.pulso-chat-form textarea:focus{border-color:#5793ff;box-shadow:0 0 0 3px rgba(52,124,240,.12)}
+.pulso-chat-form textarea{min-height:58px;max-height:100px;resize:vertical;line-height:1.45}.pulso-chat-sendrow{display:flex;align-items:center;justify-content:space-between;gap:8px}.pulso-chat-sendrow span{font-size:9px;color:var(--muted)}.pulso-chat-sendrow .btn{min-height:35px}
+.pulso-chat-hint{padding:0 12px 9px;color:var(--muted);font-size:10px;line-height:1.45;background:var(--panel)}.pulso-chat-hint:empty{display:none}
+@media(max-width:600px){.pulso-chat-launcher{left:12px;bottom:calc(15px + env(safe-area-inset-bottom));width:54px;height:54px;border-radius:16px}.pulso-chat-panel{left:12px;bottom:calc(79px + env(safe-area-inset-bottom));width:calc(100vw - 24px);height:min(500px,calc(100dvh - 110px));min-height:280px;border-radius:20px}.pulso-chat-messages{padding:11px}.pulso-chat-form{padding:9px}}
+
 </style></head><body>
 <header class="topbar"><div class="wrap topin"><a class="brand" href="./"><span class="logo"><svg viewBox="0 0 24 24" fill="none"><path d="M3 12h4l2.2-6 4.1 12 2.2-6H21" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><strong>PULSO</strong><small>APURAÇÃO ELEITORAL</small></span></a><div class="actions"><a class="btn" href="https://resultados.tse.jus.br/" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24" fill="none"><path d="M14 4h6v6M20 4l-9 9M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="btnlabel">Dados oficiais</span></a><button id="themeToggle" class="btn" type="button" aria-label="Alternar tema"><svg id="themeIcon" viewBox="0 0 24 24" fill="none"><path d="M20.5 15.2A8.7 8.7 0 0 1 8.8 3.5 8.8 8.8 0 1 0 20.5 15.2Z" stroke="currentColor" stroke-width="1.8"/></svg><span class="btnlabel">Tema</span></button><button id="refreshTop" class="btn primary" type="button"><svg id="refreshTopIcon" viewBox="0 0 24 24" fill="none"><path d="M20 7v5h-5M4 17v-5h5M6 9a7 7 0 0 1 11.6-2L20 12M4 12l2.4 5A7 7 0 0 0 18 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="btnlabel">Atualizar</span></button></div></div></header>
 <section class="hero"><div class="wrap hero-in"><div class="eyebrow"><span class="dot"></span> Transparência · Dados oficiais</div><h1>O pulso da<br>apuração eleitoral.</h1><p>Acompanhe votos, percentuais e totalização em um painel independente, feito para transformar dados oficiais em informação clara.</p><div class="herofoot"><span class="pill">◷ Consulta da página a cada 30 segundos</span><span class="pill">Fonte: Tribunal Superior Eleitoral</span></div></div></section>
@@ -78,6 +101,30 @@ main{padding:25px 0 46px}.statebar{display:flex;align-items:flex-start;justify-c
     <a class="btn primary" href="mailto:pulsocontato.debate038@passinbox.com?subject=Quero%20um%20site%20responsivo">Enviar e-mail</a>
   </div>
 </dialog>
+<div class="pulso-chat-widget">
+  <button id="chatLauncher" class="pulso-chat-launcher" type="button" aria-label="Abrir chat da comunidade" aria-expanded="false" aria-controls="chatPanel">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 4.75h14A2.25 2.25 0 0 1 21.25 7v9A2.25 2.25 0 0 1 19 18.25h-7.8L5 21v-2.75A2.25 2.25 0 0 1 2.75 16V7A2.25 2.25 0 0 1 5 4.75Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M7 9h10M7 12h7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    <span id="chatBadge" class="pulso-chat-badge" hidden>0</span>
+  </button>
+  <section id="chatPanel" class="pulso-chat-panel" aria-label="Chat da comunidade" hidden>
+    <header class="pulso-chat-head">
+      <div class="pulso-chat-headcopy"><strong>Chat da comunidade</strong><span id="chatOnline" class="pulso-chat-online">Conectando…</span></div>
+      <button id="chatClose" class="pulso-chat-close" type="button" aria-label="Fechar chat">×</button>
+    </header>
+    <div id="chatSetupNote" class="pulso-chat-note">O chat está pronto para ser conectado, mas o banco de mensagens ainda precisa ser configurado. Consulte o arquivo <strong>CHAT_SETUP.md</strong> no repositório.</div>
+    <div id="chatMessages" class="pulso-chat-messages" role="log" aria-live="polite" aria-relevant="additions text" hidden></div>
+    <form id="chatForm" class="pulso-chat-form" hidden>
+      <input id="chatName" name="name" type="text" maxlength="32" autocomplete="nickname" placeholder="Seu nome" aria-label="Seu nome" required>
+      <textarea id="chatText" name="message" maxlength="500" placeholder="Escreva uma mensagem…" aria-label="Sua mensagem" required></textarea>
+      <div class="pulso-chat-sendrow"><span>Máximo de 500 caracteres</span><button id="chatSend" class="btn primary" type="submit">Enviar</button></div>
+    </form>
+    <div id="chatHint" class="pulso-chat-hint" role="status" aria-live="polite"></div>
+  </section>
+</div>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script src="./chat-config.js"></script>
 <script>
 (function(){"use strict";var $=function(id){return document.getElementById(id)},REFRESH_MS=30000,payloadNow=null,mode="votes",fetching=false,sourceLabel="espelho do GitHub Pages",shareBlob=null,shareFile=null,intFmt=new Intl.NumberFormat("pt-BR",{maximumFractionDigits:0}),pctFmt=new Intl.NumberFormat("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2}),colors=["#347cf0","#13a981","#edaa35","#9a76ef","#e66f80","#20b7c9","#e57b35","#7190ac"],history=[];
 try{var saved=JSON.parse(localStorage.getItem("pulso-history")||"[]");if(Array.isArray(saved))history=saved.slice(-120)}catch(e){}
@@ -157,6 +204,73 @@ function payloadVoteCount(p){return getCandidates(p).reduce(function(total,c){re
 function validPayload(p){return !!(p&&Array.isArray(p.carg)&&p.carg.length&&(p.s||p.v||p.e))}
 async function getJson(url){var controller=new AbortController(),timer=setTimeout(function(){controller.abort()},9000);try{var response=await fetch(url,{cache:"no-store",mode:"cors",signal:controller.signal});if(!response.ok)throw new Error("HTTP "+response.status);var data=await response.json();if(!validPayload(data))throw new Error("Estrutura de resultados não reconhecida");return data}finally{clearTimeout(timer)}}
 async function load(){if(fetching)return;fetching=true;$("refreshTop").disabled=true;try{var liveUrl="https://resultados.tse.jus.br/oficial/ele2026/6258/dados/br/br-c0001-e006258-u.json?pulso="+Date.now();var results=await Promise.allSettled([getJson(liveUrl),getJson("https://raw.githubusercontent.com/Arthurreis99/pulso-apuracao/main/docs/data/apuracao.json?pulso="+Date.now()),getJson("./data/apuracao.json?pulso="+Date.now())]);var choices=[];if(results[0].status==="fulfilled")choices.push({payload:results[0].value,source:"consulta direta ao TSE"});if(results[1].status==="fulfilled")choices.push({payload:results[1].value,source:"espelho atualizado no repositório GitHub"});if(results[2].status==="fulfilled")choices.push({payload:results[2].value,source:"espelho publicado no GitHub Pages"});if(!choices.length){var errors=results.map(function(r){return r.status==="rejected"?r.reason.message:""}).filter(Boolean);throw new Error(errors.join(" · ")||"Nenhuma fonte devolveu dados válidos")}choices.sort(function(a,b){var delta=payloadTimestamp(b.payload)-payloadTimestamp(a.payload);return delta||payloadVoteCount(b.payload)-payloadVoteCount(a.payload)});var best=choices[0];payloadNow=best.payload;sourceLabel=best.source;saveHistory(payloadNow);renderCandidates(payloadNow);update(payloadNow);draw()}catch(e){$("messageBox").textContent="Não foi possível obter uma nova leitura ("+e.message+"). Os últimos dados carregados, se houver, são mantidos. Consulte também o portal oficial do TSE.";$("messageBox").classList.add("show");if(!payloadNow){$("statusPill").className="status err";$("statusPill").textContent="Sem conexão";$("statusText").textContent="Dados temporariamente indisponíveis"}}finally{fetching=false;$("refreshTop").disabled=false}}
+
+function initCommunityChat(){
+ var launcher=$("chatLauncher"),panel=$("chatPanel"),close=$("chatClose"),badge=$("chatBadge"),online=$("chatOnline"),note=$("chatSetupNote"),list=$("chatMessages"),form=$("chatForm"),nameField=$("chatName"),textField=$("chatText"),send=$("chatSend"),hint=$("chatHint");
+ if(!launcher||!panel)return;
+ var unread=0,isOpen=false,db=null,uid=null,messagesRef=null,known=Object.create(null),initialized=false,connectionRef=null;
+ try{nameField.value=localStorage.getItem("pulso-chat-name")||"";}catch(e){}
+ function setHint(s){hint.textContent=s||"";}
+ function setUnread(n){unread=Math.max(0,n);if(unread>0&&!isOpen){badge.textContent=unread>99?"99+":String(unread);badge.hidden=false;}else{badge.hidden=true;}}
+ function openPanel(){isOpen=true;panel.hidden=false;launcher.setAttribute("aria-expanded","true");setUnread(0);window.setTimeout(function(){list.scrollTop=list.scrollHeight;},60);if(!initialized)nameField.focus();}
+ function closePanel(){isOpen=false;panel.hidden=true;launcher.setAttribute("aria-expanded","false");}
+ launcher.addEventListener("click",function(){if(isOpen)closePanel();else openPanel();});
+ close.addEventListener("click",closePanel);
+ function showUnconfigured(){
+   note.hidden=false;list.hidden=true;form.hidden=true;online.textContent="Chat indisponível";
+ }
+ var cfg=window.PULSO_FIREBASE_CONFIG;
+ var validConfig=cfg&&cfg.apiKey&&cfg.authDomain&&cfg.databaseURL&&cfg.projectId&&cfg.appId&&String(cfg.apiKey).indexOf("COLE_")!==0&&String(cfg.databaseURL).indexOf("SEU_PROJETO")<0;
+ if(!validConfig||typeof firebase==="undefined"){showUnconfigured();return;}
+ function appendMessage(key,msg){
+   if(known[key])return false;known[key]=true;
+   var empty=list.querySelector(".pulso-chat-empty");if(empty)empty.remove();
+   var item=document.createElement("article");item.className="pulso-chat-message"+(uid&&msg.senderId===uid?" mine":"");
+   var author=document.createElement("strong");author.textContent=String(msg.name||"Visitante").slice(0,32);
+   var body=document.createElement("p");body.textContent=String(msg.text||"").slice(0,500);
+   var time=document.createElement("time");var ts=Number(msg.createdAt);time.textContent=Number.isFinite(ts)&&ts>0?new Date(ts).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"}):"agora";
+   item.appendChild(author);item.appendChild(body);item.appendChild(time);list.appendChild(item);
+   while(list.children.length>100)list.removeChild(list.firstElementChild);
+   list.scrollTop=list.scrollHeight;
+   if(initialized&&msg.senderId!==uid&&!isOpen)setUnread(unread+1);
+   return true;
+ }
+ function connectionCount(snapshot){var count=0;snapshot.forEach(function(user){if(user.hasChildren())count++;});online.textContent=count===1?"1 pessoa online":count+" pessoas online";}
+ function activateChat(){
+   note.hidden=true;list.hidden=false;form.hidden=false;online.textContent="Conectado";
+   try{nameField.value=localStorage.getItem("pulso-chat-name")||nameField.value;}catch(e){}
+   messagesRef=db.ref("messages").orderByChild("createdAt").limitToLast(100);
+   messagesRef.once("value").then(function(snapshot){
+     snapshot.forEach(function(child){appendMessage(child.key,child.val()||{});});
+     if(!list.children.length){var empty=document.createElement("div");empty.className="pulso-chat-empty";empty.textContent="Nenhuma mensagem ainda. Seja a primeira pessoa a conversar!";list.appendChild(empty);}
+     list.scrollTop=list.scrollHeight;initialized=true;
+     messagesRef.on("child_added",function(child){
+       var msg=child.val()||{},added=appendMessage(child.key,msg);
+       if(added&&msg.senderId!==uid&&!isOpen)setUnread(unread+1);
+     },function(error){setHint("Não foi possível carregar as mensagens. Verifique as regras do banco.");});
+   }).catch(function(error){setHint("Não foi possível ler o histórico do chat. Verifique a configuração do banco.");});
+   db.ref("presence").on("value",connectionCount,function(){online.textContent="Presença indisponível";});
+   db.ref(".info/connected").on("value",function(snapshot){
+     if(snapshot.val()===true){
+       if(!connectionRef)connectionRef=db.ref("presence/"+uid).push();
+       connectionRef.onDisconnect().remove().then(function(){return connectionRef.set(true);}).catch(function(){online.textContent="Conectado, presença não contabilizada";});
+     }
+   });
+ }
+ firebase.auth(firebase.app("pulsoCommunityChat")).signInAnonymously().then(function(credential){
+   uid=credential.user.uid;db=firebase.database(firebase.app("pulsoCommunityChat"));activateChat();
+ }).catch(function(error){showUnconfigured();note.textContent="Não foi possível conectar ao chat. Confira se o login anônimo está habilitado no Firebase Authentication e se a configuração está correta.";setHint(error&&error.code?"Código: "+error.code:"Erro de conexão.");});
+ form.addEventListener("submit",function(event){
+   event.preventDefault();if(!messagesRef||!uid)return;
+   var name=String(nameField.value||"").trim().replace(/\s+/g," ").slice(0,32),text=String(textField.value||"").trim().slice(0,500);
+   if(!name||!text){setHint("Preencha seu nome e uma mensagem.");return;}
+   send.disabled=true;setHint("Enviando…");
+   try{localStorage.setItem("pulso-chat-name",name);}catch(e){}
+   messagesRef.ref.push({name:name,text:text,senderId:uid,createdAt:firebase.database.ServerValue.TIMESTAMP}).then(function(){textField.value="";setHint("");textField.focus();}).catch(function(error){setHint("Mensagem não enviada. Verifique as regras do banco de dados.");}).finally(function(){send.disabled=false;});
+ });
+}
+
+initCommunityChat();
 $("generateImage").addEventListener("click",generateImageClick);$("shareImage").addEventListener("click",shareImageClick);var contactDialog=$("contactDialog");$("openContact").addEventListener("click",function(){if(contactDialog&&typeof contactDialog.showModal==="function")contactDialog.showModal();});$("closeContact").addEventListener("click",function(){if(contactDialog)contactDialog.close();});
 $("themeToggle").addEventListener("click",function(){setTheme(theme()==="dark"?"light":"dark");draw()});$("refreshTop").addEventListener("click",load);document.querySelectorAll(".mode").forEach(function(b){b.addEventListener("click",function(){mode=b.dataset.mode;document.querySelectorAll(".mode").forEach(function(x){x.classList.toggle("active",x===b)});var t={votes:["Votos por candidatura","Comparação do total de votos contabilizados por candidatura."],share:["Participação percentual","Distribuição relativa dos votos computados entre candidaturas."],evolution:["Evolução da apuração","Variação percentual observada neste navegador."],ballots:["Válidos, brancos e nulos","Composição dos totais de votação informados no arquivo oficial."]};$("chartTitle").textContent=t[mode][0];$("chartDesc").textContent=t[mode][1];draw()})});window.addEventListener("resize",draw);$("year").textContent=new Date().getFullYear();var savedTheme=null;try{savedTheme=localStorage.getItem("pulso-theme")}catch(e){}setTheme(savedTheme||(window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"));load();window.setInterval(load,REFRESH_MS)
 })();
