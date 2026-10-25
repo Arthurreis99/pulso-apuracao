@@ -85,6 +85,7 @@ main{padding:25px 0 46px}.statebar{display:flex;align-items:flex-start;justify-c
 .state-map-caption{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:5px}.state-map-caption strong{font-size:11px}.state-map-caption span{font-size:9px;color:var(--muted);text-align:right}
 .state-map-container{position:relative;display:grid;place-items:center;min-height:280px}
 .state-map-container svg{width:100%;height:auto;max-height:490px;overflow:visible;display:block}
+.state-map-loading[hidden],.state-map-container svg[hidden]{display:none!important}
 .state-map-loading{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:25px;color:var(--muted);font-size:11px;line-height:1.6}
 .state-shape{fill:rgba(113,143,184,.15);stroke:var(--bg);stroke-width:1.2;stroke-linejoin:round;vector-effect:non-scaling-stroke;cursor:pointer;transition:fill .18s,filter .18s,stroke .18s;outline:none}
 .state-shape:hover,.state-shape:focus-visible{fill:#7db2ff;stroke:#d8eaff;stroke-width:1.7;filter:drop-shadow(0 0 4px rgba(69,143,255,.55))}
@@ -224,11 +225,11 @@ function stateToggle(uf){
  if(index>=0)next.splice(index,1);else next.push(uf);
  setStateSelection(next);
 }
-function setStateSelection(next){
+function setStateSelection(next,keepPickerOpen){
  selectedUfs=Array.from(new Set((next||[]).filter(function(uf){return !!STATE_BY_UF[uf]}))).sort();
  var token=++stateRequestId;
  updateStateControls();
- var picker=$("statePicker");if(picker&&picker.open)picker.open=false;
+ var picker=$("statePicker");if(!keepPickerOpen&&picker&&picker.open)picker.open=false;
  if(!selectedUfs.length){displayPayload=payloadNow;sourceLabel=nationalSourceLabel;renderActivePayload();return;}
  var names=selectedUfs.map(stateLabel).join(", ");
  $("stateDataHint").textContent="Carregando dados oficiais para "+names+"…";
@@ -353,7 +354,7 @@ function renderBrazilMap(geo){
 function initStateExplorer(){
  var box=$("stateCheckboxes");
  box.innerHTML=STATE_LIST.map(function(st){return '<label class="state-option"><input type="checkbox" data-uf="'+st.uf+'"><span>'+st.uf+' · '+st.name+'</span></label>';}).join("");
- box.querySelectorAll("input[data-uf]").forEach(function(input){input.addEventListener("change",function(){var next=selectedUfs.slice();if(input.checked){if(next.indexOf(input.dataset.uf)<0)next.push(input.dataset.uf);}else next=next.filter(function(uf){return uf!==input.dataset.uf;});setStateSelection(next);});});
+ box.querySelectorAll("input[data-uf]").forEach(function(input){input.addEventListener("change",function(){var next=selectedUfs.slice();if(input.checked){if(next.indexOf(input.dataset.uf)<0)next.push(input.dataset.uf);}else next=next.filter(function(uf){return uf!==input.dataset.uf;});setStateSelection(next,true);});});
  $("stateNational").addEventListener("click",function(){setStateSelection([]);});
  $("stateClear").addEventListener("click",function(){setStateSelection([]);});
  var localUrl="./data/brazil-states.geojson?pulso="+Date.now();
@@ -390,7 +391,7 @@ async function createShareImage(){
  reportText(ctx,"P U L S O",82,70,"900 19px system-ui","#ffffff");
  reportText(ctx,"APURAÇÃO ELEITORAL",82,94,"700 10px system-ui","#bfdcff");
  reportText(ctx,"Apuração presidencial",54,169,"850 47px system-ui","#ffffff");
- reportText(ctx,"Fonte oficial: Tribunal Superior Eleitoral",57,203,"500 16px system-ui","#ccdefa");
+ reportText(ctx,"TSE · Recorte: "+stateSelectionLabel(),57,203,"500 16px system-ui","#ccdefa");
  var published=officialStamp(reportPayload),age=published?(Date.now()-published.getTime())/60000:Infinity,stale=!published||age>10;
  roundForImage(ctx,54,226,600,43,13);ctx.fillStyle=stale?"rgba(255,190,70,.13)":"rgba(67,226,173,.12)";ctx.fill();ctx.strokeStyle=stale?"rgba(255,190,70,.55)":"rgba(67,226,173,.48)";ctx.lineWidth=1;ctx.stroke();
  ctx.fillStyle=stale?"#ffd48b":"#83f1cb";ctx.beginPath();ctx.arc(74,247,5,0,Math.PI*2);ctx.fill();
