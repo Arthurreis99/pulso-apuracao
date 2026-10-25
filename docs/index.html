@@ -192,7 +192,7 @@ try{var saved=JSON.parse(localStorage.getItem("pulso-history")||"[]");if(Array.i
 function n(v){if(typeof v==="number")return Number.isFinite(v)?v:0;if(v==null||v==="")return 0;var s=String(v).trim().replace(/\s/g,""),c=s.lastIndexOf(","),d=s.lastIndexOf(".");if(c>=0&&d>=0)s=c>d?s.replace(/\./g,"").replace(",","."):s.replace(/,/g,"");else if(c>=0)s=s.replace(/\./g,"").replace(",",".");else if((s.match(/\./g)||[]).length>1)s=s.replace(/\./g,"");var q=Number(s);return Number.isFinite(q)?q:0}
 function safe(v){return String(v==null?"":v).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
 function getCandidates(p){var cargo=Array.isArray(p.carg)?p.carg:[],office=cargo.find(function(x){return String(x.cd)==="1"})||cargo[0],out=[];(office&&office.agr||[]).forEach(function(g){(g.par||[]).forEach(function(party){(party.cand||[]).forEach(function(c){out.push({name:c.nmu||c.nm||"Candidato sem nome informado",full:c.nm||c.nmu||"",votes:n(c.vap),pct:n(c.pvap),party:party.sg||party.nm||g.nm||"Candidatura",number:c.n||"",sqcand:c.sqcand?String(c.sqcand):""})})})});return out.sort(function(a,b){return b.votes-a.votes})}
-function stateNormalize(v){return String(v||"").normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]/g,"")}
+function stateNormalize(v){return String(v||"").toLowerCase().replace(/[áàâãä]/g,"a").replace(/[éèêë]/g,"e").replace(/[íìîï]/g,"i").replace(/[óòôõö]/g,"o").replace(/[úùûü]/g,"u").replace(/ç/g,"c").replace(/[^a-z0-9]/g,"")}
 var STATE_LIST=[
  {uf:"AC",name:"Acre"},{uf:"AL",name:"Alagoas"},{uf:"AP",name:"Amapá"},{uf:"AM",name:"Amazonas"},{uf:"BA",name:"Bahia"},{uf:"CE",name:"Ceará"},{uf:"DF",name:"Distrito Federal"},{uf:"ES",name:"Espírito Santo"},{uf:"GO",name:"Goiás"},{uf:"MA",name:"Maranhão"},{uf:"MT",name:"Mato Grosso"},{uf:"MS",name:"Mato Grosso do Sul"},{uf:"MG",name:"Minas Gerais"},{uf:"PA",name:"Pará"},{uf:"PB",name:"Paraíba"},{uf:"PR",name:"Paraná"},{uf:"PE",name:"Pernambuco"},{uf:"PI",name:"Piauí"},{uf:"RJ",name:"Rio de Janeiro"},{uf:"RN",name:"Rio Grande do Norte"},{uf:"RS",name:"Rio Grande do Sul"},{uf:"RO",name:"Rondônia"},{uf:"RR",name:"Roraima"},{uf:"SC",name:"Santa Catarina"},{uf:"SP",name:"São Paulo"},{uf:"SE",name:"Sergipe"},{uf:"TO",name:"Tocantins"}
 ];
@@ -315,9 +315,9 @@ function collectGeoPoints(node,points){
  node.forEach(function(child){collectGeoPoints(child,points);});
 }
 function stateCodeForFeature(feature){
- var props=feature.properties||{},known=[props.sigla,props.SIGLA,props.uf,props.UF,props.abbrev,props.abbreviation,props.postal,props.code];
- for(var i=0;i<known.length;i++){var raw=String(known[i]||"").toUpperCase();if(STATE_BY_UF[raw])return raw;}
- var names=[props.name,props.nome,props.NAME_1,props.name_en,props.state,props.estado,props.description,feature.name];
+ var props=feature.properties||{},known=[props.sigla,props.SIGLA,props.sigla_uf,props.SIGLA_UF,props.uf,props.UF,props.abbrev,props.abbreviation,props.postal,props.code];
+ for(var i=0;i<known.length;i++){var raw=String(known[i]||"").toUpperCase().trim();if(STATE_BY_UF[raw])return raw;}
+ var names=[props.name,props.nome,props.NAME_1,props.name_en,props.state,props.estado,props.description,props.name_pt,feature.name];
  for(var j=0;j<names.length;j++){
   var norm=stateNormalize(names[j]).replace(/^(stateof|estadode|estadodo|estadoda|estado)/,"");
   if(STATE_BY_NAME[norm])return STATE_BY_NAME[norm];
@@ -343,7 +343,7 @@ function renderBrazilMap(geo){
   var uf=stateCodeForFeature(feature);if(!uf||drawn[uf])return;var st=STATE_BY_UF[uf],d=geoFeaturePath(feature.geometry,project);if(!d)return;drawn[uf]=true;
   markup.push('<path class="state-shape" data-uf="'+uf+'" d="'+d+'" tabindex="0" role="button" aria-label="'+safe(st.name)+', selecionar estado"><title>'+safe(st.name)+' ('+uf+')</title></path>');
  });
- if(Object.keys(drawn).length<27)throw new Error("A malha geográfica não permitiu identificar todas as 27 UFs.");
+ if(Object.keys(drawn).length<27)throw new Error("A malha geográfica permitiu identificar apenas "+Object.keys(drawn).length+" das 27 UFs.");
  svg.innerHTML=markup.join("");svg.hidden=false;loading.hidden=true;stateMapFeatures=features;stateMapReady=true;
  svg.querySelectorAll(".state-shape[data-uf]").forEach(function(shape){
   shape.addEventListener("click",function(){stateToggle(shape.dataset.uf);});
@@ -358,7 +358,7 @@ function initStateExplorer(){
  $("stateNational").addEventListener("click",function(){setStateSelection([]);});
  $("stateClear").addEventListener("click",function(){setStateSelection([]);});
  var localUrl="./data/brazil-states.geojson?pulso="+Date.now();
- fetch(localUrl,{cache:"no-store"}).then(function(response){if(!response.ok)throw new Error("malha local ainda não publicada");return response.json();}).catch(function(){return fetch("https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/brazil-states.geojson?pulso="+Date.now(),{cache:"no-store"}).then(function(response){if(!response.ok)throw new Error("fonte de malha indisponível");return response.json();});}).then(renderBrazilMap).catch(function(error){$("stateMapLoading").textContent="O mapa geográfico ainda está sendo preparado. O filtro por lista pode ser usado assim que a malha for publicada."; $("stateMapStatus").textContent="Mapa indisponível";$("stateDataHint").textContent="A malha dos estados não foi carregada. Atualize a página após a publicação dos arquivos pelo GitHub Actions.";});
+ fetch(localUrl,{cache:"no-store"}).then(function(response){if(!response.ok)throw new Error("malha local ainda não publicada");return response.json();}).catch(function(){return fetch("https://raw.githubusercontent.com/codeforgermany/click_that_hood/main/public/data/brazil-states.geojson?pulso="+Date.now(),{cache:"no-store"}).then(function(response){if(!response.ok)throw new Error("fonte de malha indisponível");return response.json();});}).then(renderBrazilMap).catch(function(error){$("stateMapLoading").hidden=false;$("stateMapLoading").textContent="Não foi possível desenhar o mapa: "+(error&&error.message?error.message:"erro de carregamento")+". O filtro por lista continua disponível."; $("stateMapStatus").textContent="Mapa indisponível";$("stateDataHint").textContent="A malha geográfica não foi carregada. Atualize a página após a publicação dos arquivos pelo GitHub Actions.";});
 }
 function refreshSelectedStateData(){
  if(!selectedUfs.length)return;
