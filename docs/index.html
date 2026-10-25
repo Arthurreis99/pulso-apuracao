@@ -64,7 +64,7 @@ function reportWrap(ctx,value,x,y,maxWidth,lineHeight,maxLines){var words=String
 function loadLocalPortrait(candidate){return new Promise(function(resolve){if(!candidate.sqcand||! /^\d+$/.test(candidate.sqcand)){resolve(null);return;}var img=new Image(),finished=false,timer=setTimeout(done,1300);function done(){if(finished)return;finished=true;clearTimeout(timer);resolve(img.complete&&img.naturalWidth>0?img:null);}img.onload=done;img.onerror=done;img.src="./photos/"+candidate.sqcand+".jpeg?share="+Date.now();});}
 async function createShareImage(){
  if(!payloadNow)throw new Error("Ainda não há dados de apuração carregados.");
- var candidates=getCandidates(payloadNow).slice(0,4),columns=candidates.length<=1?1:2,rows=Math.ceil(candidates.length/columns),cardH=350,gridTop=307,metricsTop=gridTop+rows*(cardH+17)+23,W=1200,H=Math.max(1120,metricsTop+258);
+ var candidates=getCandidates(payloadNow).slice(0,4),columns=candidates.length<=1?1:2,rows=Math.ceil(candidates.length/columns),cardH=350,gridTop=307,metricsTop=gridTop+rows*(cardH+17)+23,W=1200,H=Math.max(940,metricsTop+255);
  var canvas=document.createElement("canvas");canvas.width=W;canvas.height=H;var ctx=canvas.getContext("2d");
  var bg=ctx.createLinearGradient(0,0,W,H);bg.addColorStop(0,"#071a3a");bg.addColorStop(.58,"#0d3474");bg.addColorStop(1,"#1457a9");ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
  var glow=ctx.createRadialGradient(980,30,10,980,30,540);glow.addColorStop(0,"rgba(116,184,255,.36)");glow.addColorStop(1,"rgba(116,184,255,0)");ctx.fillStyle=glow;ctx.fillRect(0,0,W,660);
