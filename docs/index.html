@@ -232,7 +232,6 @@ function initCommunityChat(){
    item.appendChild(author);item.appendChild(body);item.appendChild(time);list.appendChild(item);
    while(list.children.length>100)list.removeChild(list.firstElementChild);
    list.scrollTop=list.scrollHeight;
-   if(initialized&&msg.senderId!==uid&&!isOpen)setUnread(unread+1);
    return true;
  }
  function connectionCount(snapshot){var count=0;snapshot.forEach(function(user){if(user.hasChildren())count++;});online.textContent=count===1?"1 pessoa online":count+" pessoas online";}
