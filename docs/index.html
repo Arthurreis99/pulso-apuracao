@@ -252,12 +252,12 @@ function fetchStatePayload(uf,force){
 function fetchStatePayloads(ufs,force){return Promise.all(ufs.map(function(uf){return fetchStatePayload(uf,force)}));}
 function aggregateStatePayloads(payloads){
  if(!payloads||!payloads.length)return null;
- var out=JSON.parse(JSON.stringify(payloads[0])),candidateSums=Object.create(null),validVotes=0,blankVotes=0,nullVotes=0,totalSections=0,sectionsDone=0,electorate=0,newest=null;
+ var out=JSON.parse(JSON.stringify(payloads[0])),candidateSums=Object.create(null),validVotes=0,blankVotes=0,nullVotes=0,totalSections=0,sectionsDone=0,electorate=0,oldest=null;
  payloads.forEach(function(p){
   getCandidates(p).forEach(function(c){var key=String(c.sqcand||c.number||stateNormalize(c.name));if(!candidateSums[key])candidateSums[key]={votes:0};candidateSums[key].votes+=c.votes;});
   validVotes+=n((p.v||{}).vvc);blankVotes+=n((p.v||{}).vb);nullVotes+=n((p.v||{}).vn!==undefined&&(p.v||{}).vn!==null?p.v.vn:(p.v||{}).tvn);
   sectionsDone+=n((p.s||{}).st);totalSections+=n((p.s||{}).ts);electorate+=n((p.e||{}).te);
-  var stamp=officialStamp(p);if(stamp&&(!newest||stamp>newest.stamp))newest={stamp:stamp,dg:p.dg,hg:p.hg};
+  var stamp=officialStamp(p);if(stamp&&(!oldest||stamp<oldest.stamp))oldest={stamp:stamp,dg:p.dg,hg:p.hg};
  });
  var candidateTotal=Object.keys(candidateSums).reduce(function(sum,key){return sum+candidateSums[key].votes;},0);
  if(!validVotes)validVotes=candidateTotal;
@@ -270,7 +270,7 @@ function aggregateStatePayloads(payloads){
  out.s=out.s||{};out.s.st=String(sectionsDone);out.s.ts=String(totalSections);var progress=totalSections?sectionsDone/totalSections*100:0;out.s.pst=progress.toFixed(2).replace(".",",");out.s.pstn=String(progress);
  out.e=out.e||{};out.e.te=String(electorate);
  out.v=out.v||{};out.v.vvc=String(validVotes);out.v.vv=String(validVotes);out.v.vnom=String(validVotes);out.v.vb=String(blankVotes);out.v.vn=String(nullVotes);out.v.tvn=String(nullVotes);
- if(newest){out.dg=newest.dg;out.hg=newest.hg;}
+ if(oldest){out.dg=oldest.dg;out.hg=oldest.hg;}
  return out;
 }
 function renderStateOverview(p){
@@ -305,7 +305,7 @@ function renderActivePayload(){
  if(missing.length){renderUnavailableStatePayload(new Error("Dados ausentes para "+missing.join(", ")));return;}
  displayPayload=aggregateStatePayloads(selectedUfs.map(function(uf){return statePayloads[uf]}));sourceLabel="espelho estadual do GitHub Pages";
  renderStateOverview(displayPayload);
- $("stateDataHint").textContent="Dados oficiais por UF espelhados do TSE. O percentual das candidaturas é recalculado sobre os votos válidos somados das UFs selecionadas.";
+ $("stateDataHint").textContent="Dados oficiais por UF espelhados do TSE. Os percentuais são recalculados sobre os votos válidos somados; o horário mostrado considera a UF selecionada com publicação mais antiga.";
  $("resultsScopeDescription").textContent="Filtro: "+stateSelectionLabel()+". Os votos são somados entre as UFs; percentuais recalculados sobre os votos válidos do recorte.";
  renderCandidates(displayPayload);update(displayPayload);draw();
 }
