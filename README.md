@@ -26,20 +26,20 @@ Entre no diretório do projeto e execute `python3 server.py`. Depois abra `http:
 
 ## Publicar no GitHub Pages
 
-O GitHub Pages hospeda arquivos estáticos e não executa Python. A pasta `docs/` contém a versão estática do painel. O workflow `.github/workflows/atualizar-apuracao.yml` consulta o TSE, atualiza `docs/data/apuracao.json` em tempo de execução e publica a pasta `docs` via GitHub Pages.
+O site público fica em `docs/`. O GitHub Pages publica essa pasta diretamente pela branch; o workflow `.github/workflows/atualizar-apuracao.yml` apenas sincroniza o JSON do TSE, evitando concorrência entre dois processos de deploy.
 
-1. Extraia o ZIP e instale o GitHub Desktop: https://desktop.github.com/.
-2. No GitHub Desktop, crie um repositório local chamado `pulso-apuracao`, copie para ele o conteúdo desta pasta (incluindo `.github/` e `docs/`), faça um commit e escolha **Publish repository**. Deixe o repositório público.
-3. No repositório publicado, abra **Settings → Pages** e defina **Source: GitHub Actions**.
-4. Na aba **Actions**, execute manualmente **Sincronizar TSE e publicar Pulso** com **Run workflow**.
-5. Quando a execução finalizar com sucesso, abra o endereço indicado em **Settings → Pages**. Para o repositório `pulso-apuracao`, o endereço esperado é `https://arthurreis99.github.io/pulso-apuracao/`.
+1. No repositório `Arthurreis99/pulso-apuracao`, abra **Settings → Pages**.
+2. Em **Build and deployment → Source**, selecione **Deploy from a branch**.
+3. Em **Branch**, escolha `main` e a pasta `/docs`; clique em **Save**.
+4. Em **Actions**, confira as execuções de **Sincronizar dados oficiais do TSE**. O workflow também aceita execução manual por **Run workflow**.
+5. O endereço esperado é [`https://arthurreis99.github.io/pulso-apuracao/`](https://arthurreis99.github.io/pulso-apuracao/).
 
-Consulte `GUIA-GITHUB-PAGES.md` para o tutorial completo, detalhes da interface do GitHub Desktop e dicas de solução de problemas.
+O `index.html` da raiz redireciona visitantes do GitHub Pages para `/docs/` caso a publicação ainda esteja configurada para a raiz. A versão local no Windows continua usando `server.py` e `iniciar.bat`.
 
 ### Frequência e limitações
-- A página consulta o JSON publicado a cada 30 segundos; a publicação busca o TSE a cada 5 minutos. O agendamento do GitHub Actions pode atrasar, portanto não é uma conexão instantânea de 30 segundos.
-- O workflow publica o site mesmo se houver indisponibilidade temporária do TSE, usando o último JSON válido já existente no repositório. O primeiro JSON contém dados vazios intencionalmente.
-- O site local consulta através do servidor Python; o modo Pages não executa `server.py`.
+- A página tenta consultar o arquivo oficial do TSE diretamente a cada 30 segundos e tem duas fontes de fallback: o JSON do repositório e a cópia publicada em `docs/data/apuracao.json`.
+- O GitHub Actions atualiza o espelho em intervalos programados de 5 minutos, que podem atrasar. O workflow usa cache-buster e valida o horário do arquivo; se a fonte continuar antiga, preserva a última cópia e a página sinaliza que os dados podem estar desatualizados.
+- O GitHub Pages não executa `server.py`. Para executar a versão local, use `iniciar.bat` no Windows.
 
 ## Visualizações
 1. Votos por candidato.
