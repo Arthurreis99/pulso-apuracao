@@ -257,8 +257,9 @@ function initCommunityChat(){
      }
    });
  }
- firebase.auth(firebase.app("pulsoCommunityChat")).signInAnonymously().then(function(credential){
-   uid=credential.user.uid;db=firebase.database(firebase.app("pulsoCommunityChat"));activateChat();
+ var chatApp;try{chatApp=firebase.app("pulsoCommunityChat");}catch(appError){chatApp=firebase.initializeApp(cfg,"pulsoCommunityChat");}
+ firebase.auth(chatApp).signInAnonymously().then(function(credential){
+   uid=credential.user.uid;db=firebase.database(chatApp);activateChat();
  }).catch(function(error){showUnconfigured();note.textContent="Não foi possível conectar ao chat. Confira se o login anônimo está habilitado no Firebase Authentication e se a configuração está correta.";setHint(error&&error.code?"Código: "+error.code:"Erro de conexão.");});
  form.addEventListener("submit",function(event){
    event.preventDefault();if(!messagesRef||!uid)return;
