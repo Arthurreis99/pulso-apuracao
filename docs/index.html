@@ -344,7 +344,7 @@ function renderBrazilMap(geo){
   markup.push('<path class="state-shape" data-uf="'+uf+'" d="'+d+'" tabindex="0" role="button" aria-label="'+safe(st.name)+', selecionar estado"><title>'+safe(st.name)+' ('+uf+')</title></path>');
  });
  if(Object.keys(drawn).length<27)throw new Error("A malha geográfica permitiu identificar apenas "+Object.keys(drawn).length+" das 27 UFs.");
- svg.innerHTML=markup.join("");svg.hidden=false;loading.hidden=true;stateMapFeatures=features;stateMapReady=true;
+ svg.innerHTML=markup.join("");svg.removeAttribute("hidden");svg.style.display="block";loading.hidden=true;stateMapFeatures=features;stateMapReady=true;
  svg.querySelectorAll(".state-shape[data-uf]").forEach(function(shape){
   shape.addEventListener("click",function(){stateToggle(shape.dataset.uf);});
   shape.addEventListener("keydown",function(event){if(event.key==="Enter"||event.key===" "){event.preventDefault();stateToggle(shape.dataset.uf);}});
