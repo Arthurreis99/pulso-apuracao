@@ -3,13 +3,15 @@ name: Sincronizar TSE e publicar Pulso
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "docs/data/apuracao.json"
   schedule:
     # O agendamento é periódico; o GitHub pode executar com atraso.
     - cron: "3-59/5 * * * *"
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -49,9 +51,23 @@ jobs:
             fi
             sleep 4
           done
+
           if [ "$ok" != "true" ]; then
             echo "::warning::O TSE não respondeu com dados válidos; será mantido o último arquivo do repositório."
             jq -e 'type == "object" and (.carg | type == "array")' docs/data/apuracao.json >/dev/null
+          fi
+
+      - name: Guardar no repositório apenas quando os dados mudarem
+        shell: bash
+        run: |
+          if ! git diff --quiet -- docs/data/apuracao.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add docs/data/apuracao.json
+            git commit -m "Atualiza dados oficiais da apuração"
+            git push
+          else
+            echo "O arquivo oficial não mudou; nenhum commit extra é necessário."
           fi
 
       - name: Configurar GitHub Pages
